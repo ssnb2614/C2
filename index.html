@@ -261,6 +261,8 @@
   const GAS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
   // ▲▲▲ 部署設定 ▲▲▲
 
+  const CACHE_KEY = 'npasog_cache';
+
   async function gasCall(action, payload = null) {
     const res = await fetch(GAS_URL, {
       method: 'POST',
@@ -276,10 +278,26 @@
   let activeCaseId = null;
 
   document.addEventListener("DOMContentLoaded", function() {
-    gasCall('getVehicleOptions').then(opts => {
-      globalVehicleOptions = opts; updateAllVehicleSelects();
-    });
-    loadCases();
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        globalVehicleOptions = data.vehicleOptions || [];
+        updateAllVehicleSelects();
+        renderCases(data.cases || []);
+        // 有快取時背景靜默更新，不顯示 loading 狀態
+        gasCall('initData').then(data => {
+          globalVehicleOptions = data.vehicleOptions || [];
+          updateAllVehicleSelects();
+          renderCases(data.cases || []);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        });
+      } catch (e) {
+        loadCases();
+      }
+    } else {
+      loadCases();
+    }
   });
 
   function updateAllVehicleSelects() {
@@ -327,31 +345,38 @@
     }
   }
 
+  function renderCases(cases) {
+    let html = '';
+    if (cases.length === 0) html = '<tr><td colspan="6" class="text-muted text-center">目前無任務資料</td></tr>';
+    cases.forEach(c => {
+      let badge = '';
+      let btn = '';
+
+      if (c.status === "進行中") {
+        badge = `<span class="badge badge-tactical-green">進行中</span>`;
+        btn = `<button class="btn btn-sm btn-outline-secondary text-secondary me-1" onclick='viewActiveDraft(${JSON.stringify(c.rawData)})'>檢視</button>
+               <button class="btn btn-sm btn-outline-warning me-1" onclick='modifyActiveCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>修改</button>
+               <button class="btn btn-sm btn-outline-info" onclick='startCloseCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>撰寫結報</button>`;
+      } else if (c.status === "結案審查中") {
+        badge = `<span class="badge badge-warning">審查中</span>`;
+        btn = `<button class="btn btn-sm btn-danger" onclick='reviewCloseCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>結案審查</button>`;
+      } else if (c.status === "結案") {
+        badge = `<span class="badge bg-secondary text-dark">已結案</span>`;
+        btn = `<button class="btn btn-sm btn-outline-secondary text-muted" onclick='viewArchivedCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>檢視文本</button>`;
+      }
+
+      html += `<tr><td style="color: #888;">${c.caseId}</td><td>${badge}</td><td>${c.type}</td><td>${c.commander}</td><td>${getDisplayTime(c)}</td><td>${btn}</td></tr>`;
+    });
+    document.getElementById('caseListBody').innerHTML = html;
+  }
+
   function loadCases() {
     document.getElementById('caseListBody').innerHTML = '<tr><td colspan="6" class="text-muted text-center">連線資料庫中...</td></tr>';
-    gasCall('getActiveCases').then(cases => {
-      let html = '';
-      if (cases.length === 0) html = '<tr><td colspan="6" class="text-muted text-center">目前無任務資料</td></tr>';
-      cases.forEach(c => {
-        let badge = '';
-        let btn = '';
-
-        if (c.status === "進行中") {
-          badge = `<span class="badge badge-tactical-green">進行中</span>`;
-          btn = `<button class="btn btn-sm btn-outline-secondary text-secondary me-1" onclick='viewActiveDraft(${JSON.stringify(c.rawData)})'>檢視</button>
-                 <button class="btn btn-sm btn-outline-warning me-1" onclick='modifyActiveCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>修改</button>
-                 <button class="btn btn-sm btn-outline-info" onclick='startCloseCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>撰寫結報</button>`;
-        } else if (c.status === "結案審查中") {
-          badge = `<span class="badge badge-warning">審查中</span>`;
-          btn = `<button class="btn btn-sm btn-danger" onclick='reviewCloseCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>結案審查</button>`;
-        } else if (c.status === "結案") {
-          badge = `<span class="badge bg-secondary text-dark">已結案</span>`;
-          btn = `<button class="btn btn-sm btn-outline-secondary text-muted" onclick='viewArchivedCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>檢視文本</button>`;
-        }
-
-        html += `<tr><td style="color: #888;">${c.caseId}</td><td>${badge}</td><td>${c.type}</td><td>${c.commander}</td><td>${getDisplayTime(c)}</td><td>${btn}</td></tr>`;
-      });
-      document.getElementById('caseListBody').innerHTML = html;
+    gasCall('initData').then(data => {
+      globalVehicleOptions = data.vehicleOptions || [];
+      updateAllVehicleSelects();
+      renderCases(data.cases || []);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
     });
   }
 
