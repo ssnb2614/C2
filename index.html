@@ -227,7 +227,7 @@
             <th>狀態 STATUS</th>
             <th>類型 TYPE</th>
             <th>帶隊官/案由 LEADER/REASON</th>
-            <th>出發 DEPART</th>
+            <th>初結報時間 TIME</th>
             <th>操作選項 OPS</th>
           </tr>
         </thead>
@@ -258,7 +258,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   // ▼▼▼ 部署設定：將下方 URL 替換為你的 GAS Web App 網址 ▼▼▼
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxvsAqDVTkyWSahdlOauqcYi4vmvsidbBbeJlBhtOokV7nCpbZvchJEz-MJ3hj9Sd1w/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
   // ▲▲▲ 部署設定 ▲▲▲
 
   async function gasCall(action, payload = null) {
@@ -312,6 +312,21 @@
     document.getElementById('locationFieldGroup').style.display = (type === "勤務通報") ? 'block' : 'none';
   }
 
+  function getDisplayTime(c) {
+    try {
+      const raw = JSON.parse(c.rawData);
+      if (c.status === '結案審查中' || c.status === '結案') {
+        return raw.returnTime || '--';
+      }
+      if (c.type === '事件通報') {
+        return raw.eventTime || '--';
+      }
+      return c.departureTime || '--';
+    } catch (e) {
+      return c.departureTime || '--';
+    }
+  }
+
   function loadCases() {
     document.getElementById('caseListBody').innerHTML = '<tr><td colspan="6" class="text-muted text-center">連線資料庫中...</td></tr>';
     gasCall('getActiveCases').then(cases => {
@@ -334,7 +349,7 @@
           btn = `<button class="btn btn-sm btn-outline-secondary text-muted" onclick='viewArchivedCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>檢視文本</button>`;
         }
 
-        html += `<tr><td style="color: #888;">${c.caseId}</td><td>${badge}</td><td>${c.type}</td><td>${c.commander}</td><td>${c.departureTime}</td><td>${btn}</td></tr>`;
+        html += `<tr><td style="color: #888;">${c.caseId}</td><td>${badge}</td><td>${c.type}</td><td>${c.commander}</td><td>${getDisplayTime(c)}</td><td>${btn}</td></tr>`;
       });
       document.getElementById('caseListBody').innerHTML = html;
     });
