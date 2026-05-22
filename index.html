@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>勤指傳真通報系統 | NPASOG</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --color-background-deep: #121212; --color-card-background: #1e1e1e;
+      --color-text-main: #ffffff; --color-text-secondary: #b0b0b0;
+      --color-tactical-green: #d4e157; --color-gold: #c8b981;
+      --color-dark-gold: #b3a276; --color-border: #333333; --color-shadow: rgba(0,0,0,0.5);
+    }
+    body { background-color: var(--color-background-deep); color: var(--color-text-main); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMzMzMzMzMiIGZpbGwtb3BhY2l0eT0iMC4xNSI+PHBhdGggZD0iTTAgMGg0MHY0MEgwVjB6bTIwIDIwaDIwdjIwSDIWMjB6TTAgMjBoMjB2MjBIMFYyMHoyMCAwaDIwdjIwSDIWMHoiLz48L2c+PC9nPjwvc3ZnPg=='); }
+    .header-title-container { background-color: #262a2e; border-bottom: 2px solid var(--color-border); padding: 20px 0; margin-bottom: 30px; }
+    .header-title { font-weight: 900; font-size: 2rem; }
+    .header-title::before { content: '■ '; color: var(--color-tactical-green); }
+    .section-card { background-color: var(--color-card-background); padding: 25px; border: 1px solid var(--color-border); border-radius: 4px; margin-bottom: 25px; }
+    .section-card-title { color: var(--color-gold); font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+    .form-label { color: var(--color-text-secondary); font-weight: 600; }
+    .form-control, .form-check-input, .accordion-button, .form-select { background-color: #1a1a1a; color: var(--color-text-main); border: 1px solid var(--color-border); border-radius: 2px; }
+    .form-control:focus, .form-select:focus { background-color: #1a1a1a; color: var(--color-text-main); border-color: var(--color-tactical-green); box-shadow: 0 0 0 0.25rem rgba(212, 225, 87, 0.25); }
+    ::placeholder { color: #999 !important; font-style: italic; opacity: 1; }
+    .form-check-input:checked { background-color: var(--color-tactical-green); border-color: var(--color-tactical-green); }
+    .accordion-button { background-color: var(--color-dark-gold); color: var(--color-text-main); font-weight: bold; border: none; }
+    .accordion-button:not(.collapsed) { background-color: var(--color-gold); color: var(--color-text-main); }
+    .accordion-button::after { filter: invert(1); }
+    .btn-tactical-gold { background-color: var(--color-gold); color: var(--color-text-main); font-weight: 900; border: none; padding: 12px 24px; letter-spacing: 1px; }
+    .btn-tactical-gold:hover { background-color: #d8c89c; }
+    .table-tactical { background-color: var(--color-card-background); color: var(--color-text-main); margin-bottom: 0; }
+    .table-tactical thead tr { background-color: #262a2e; border-bottom: 1px solid #444; }
+    .table-tactical th, .table-tactical td { border-color: #444; vertical-align: middle; }
+    .table-tactical .table-striped > tbody > tr:nth-of-type(odd) { background-color: #1a1a1a; }
+    .badge-tactical-green { background-color: var(--color-tactical-green); color: #000; font-weight: bold; }
+    .badge-warning { background-color: #ffc107; color: #000; font-weight: bold; }
+    .tactical-silhouette { position: absolute; bottom: -120px; right: 20px; opacity: 0.15; width: 250px; pointer-events: none; }
+    #modeBanner { display: none; background-color: #ff4c4c; color: white; padding: 10px; font-weight: bold; text-align: center; border-radius: 4px; margin-bottom: 15px; letter-spacing: 2px;}
+  </style>
+</head>
+<body>
+
+<div class="header-title-container">
+  <div class="container text-center">
+    <div class="header-title">NPASOG勤指傳真通報系統</div>
+    <div class="header-subtitle">線上管制用</div>
+  </div>
+</div>
+
+<div class="container mt-4 mb-5">
+  <div class="section-card">
+    <div class="section-card-title">■ <span id="formTitleText">新增通報立案</span></div>
+    
+    <div id="modeBanner">⚠️ 目前為【結案作業模式】，請確認返抵時間與裝備清點無誤。</div>
+
+    <div class="mb-4" id="typeRadioGroup">
+      <label class="form-label d-block fw-bold">執行類型 TYPE：</label>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="reportType" id="typeNormal" value="一般運行" checked onchange="toggleForm()">
+        <label class="form-check-label" for="typeNormal">一般運行</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="reportType" id="typeDuty" value="勤務通報" onchange="toggleForm()">
+        <label class="form-check-label" for="typeDuty" style="color: var(--color-gold);">勤務通報</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="reportType" id="typeEvent" value="事件通報" onchange="toggleForm()">
+        <label class="form-check-label" for="typeEvent" style="color: #ff4c4c;">事件通報</label>
+      </div>
+    </div>
+
+    <div class="mb-4" style="border-left: 3px solid var(--color-gold); padding-left: 10px;">
+      <label class="form-label fw-bold" style="color: var(--color-gold);">案由 EVENT CASE REASON</label>
+      <input type="text" class="form-control" id="reason" placeholder="請簡述本次任務或事件案由 (必填)">
+    </div>
+
+    <div id="normalFields">
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">帶隊官 (職稱姓名)</label>
+          <input type="text" class="form-control" id="commander" placeholder="例如：小隊長張媽媽">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" id="departureTimeLabel">出發時間 (時:分)</label>
+          <input type="time" class="form-control" id="departureTime">
+        </div>
+        <div class="col-md-3" id="returnTimeGroup" style="display: none;">
+          <label class="form-label" style="color: #ffaa00;">返抵時間 (時:分)</label>
+          <input type="time" class="form-control" id="returnTime">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" style="color: var(--color-tactical-green);">人員總數 (共幾名)</label>
+          <input type="number" class="form-control" id="personnelCount" min="1" value="1">
+        </div>
+      </div>
+      
+      <div class="mb-4 mt-3" style="border: 1px dashed #444; padding: 15px; border-radius: 4px;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="form-label fw-bold mb-0" style="color: var(--color-tactical-green);">車輛與駕駛 VEHICLE & DRIVER</label>
+          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addVehicleRow()" style="color: var(--color-gold); border-color: var(--color-gold);">+ 新增車輛 ADD</button>
+        </div>
+        <div id="vehicleContainer">
+          <div class="row mb-2 vehicle-row">
+            <div class="col-md-7 mb-2"><select class="form-select vehicle-select" style="background-color: #1a1a1a; color: white; border-color: #333;"><option value="">連線中...</option></select></div>
+            <div class="col-md-4 mb-2"><input type="text" class="form-control driver-input" placeholder="駕駛 (例: 警員李阿仁)"></div>
+            <div class="col-md-1 mb-2 d-flex align-items-center"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3" id="locationFieldGroup" style="display: none;">
+        <label class="form-label" style="color: var(--color-tactical-green);">報到地點 LOCATION</label>
+        <input type="text" class="form-control" id="reportingLocation" placeholder="例如：警政署禮堂">
+      </div>
+
+      <div class="mb-4 mt-4">
+        <label class="form-label fw-bold d-block mb-3" style="color: var(--color-tactical-green); border-bottom: 1px solid #333; padding-bottom: 10px;">裝備與彈藥攜行清單 GEAR & AMMO：</label>
+        <div class="accordion" id="gearAccordion">
+          <div class="accordion-item" style="background: none; border: 1px solid var(--color-border); margin-bottom: 8px;">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWeapons">🔫 武器系統 WEAPONS</button></h2>
+            <div id="collapseWeapons" class="accordion-collapse collapse" data-bs-parent="#gearAccordion">
+              <div class="accordion-body" style="background-color: #1a1a1a;">
+                <div class="row g-2">
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">手槍</label><input type="number" class="form-control form-control-sm gear-input" data-name="手槍" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">衝鋒槍</label><input type="number" class="form-control form-control-sm gear-input" data-name="衝鋒槍" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">步槍</label><input type="number" class="form-control form-control-sm gear-input" data-name="步槍" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">霰彈槍</label><input type="number" class="form-control form-control-sm gear-input" data-name="霰彈槍" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">狙擊槍</label><input type="number" class="form-control form-control-sm gear-input" data-name="狙擊槍" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">瓦斯槍</label><input type="number" class="form-control form-control-sm gear-input" data-name="瓦斯槍" min="0" value="0"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4 mt-3" style="border: 1px dashed #666; padding: 15px; border-radius: 4px;" id="ammoCarrierSection">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label fw-bold mb-0" style="color: var(--color-tactical-green);">押槍彈人員 AMMO CARRIER</label>
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addAmmoCarrierRow()" style="color: var(--color-gold); border-color: var(--color-gold);">+ 新增人員 ADD</button>
+            </div>
+            <div id="ammoCarrierContainer">
+              <div class="row mb-2 ammo-carrier-row">
+                <div class="col-md-10 mb-2"><input type="text" class="form-control carrier-input" placeholder="職稱與姓名 (例: 小隊長張媽媽)"></div>
+                <div class="col-md-2 mb-2 d-flex align-items-center"></div>
+              </div>
+            </div>
+          </div>
+        
+          <div class="accordion-item" style="background: none; border: 1px solid var(--color-border); margin-bottom: 8px;">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAmmo">💣 彈藥與投擲物 AMMUNITION</button></h2>
+            <div id="collapseAmmo" class="accordion-collapse collapse" data-bs-parent="#gearAccordion">
+              <div class="accordion-body" style="background-color: #1a1a1a;">
+                <div class="row g-2">
+                  <div class="col-12 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">9mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm裝備彈" min="0" value="0"></div>
+                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem;">9mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(實彈)" min="0" value="0"></div>
+                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">9mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(彈殼)" min="0" value="0"></div>
+                  
+                  <div class="col-12 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">5.56mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm裝備彈" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">5.56mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(實彈)" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">5.56mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-12 col-md-3"><label class="form-label" style="font-size: 0.85rem;">5.56mm空包彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm空包彈" min="0" value="0"></div>
+                  
+                  <div class="col-12 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">7.62mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm裝備彈" min="0" value="0"></div>
+                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem;">7.62mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(實彈)" min="0" value="0"></div>
+                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">7.62mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(彈殼)" min="0" value="0"></div>
+                  
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">霰彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="霰彈" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">震撼彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="震撼彈" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">瓦斯彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="瓦斯彈" min="0" value="0"></div>
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">色彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="色彈" min="0" value="0"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item" style="background: none; border: 1px solid var(--color-border); margin-bottom: 8px;">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEquip">📻 通訊與戰術裝備</button></h2>
+            <div id="collapseEquip" class="accordion-collapse collapse" data-bs-parent="#gearAccordion">
+              <div class="accordion-body" style="background-color: #1a1a1a;">
+                <div class="row g-2">
+                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">無線電</label><input type="number" class="form-control form-control-sm gear-input" data-name="無線電" min="0" value="0"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item" style="background: none; border: 1px solid var(--color-border);">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCustom">➕ 自訂擴充裝備</button></h2>
+            <div id="collapseCustom" class="accordion-collapse collapse" data-bs-parent="#gearAccordion">
+              <div class="accordion-body" style="background-color: #1a1a1a;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">如果清單上沒有但你需要，請填在這裡：</p>
+                <div id="customGearContainer">
+                   <div class="row g-2 mb-2 custom-gear-row"><div class="col-5"><input type="text" class="form-control form-control-sm cg-name" placeholder="名稱"></div><div class="col-3"><input type="number" class="form-control form-control-sm cg-qty" placeholder="數量" min="0"></div><div class="col-4"><input type="text" class="form-control form-control-sm cg-unit" placeholder="單位 (例: 把)"></div></div>
+                   <div class="row g-2 mb-2 custom-gear-row"><div class="col-5"><input type="text" class="form-control form-control-sm cg-name" placeholder="名稱"></div><div class="col-3"><input type="number" class="form-control form-control-sm cg-qty" placeholder="數量" min="0"></div><div class="col-4"><input type="text" class="form-control form-control-sm cg-unit" placeholder="單位"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <div id="eventFields" style="display: none;">
+      <div class="mb-3">
+        <label class="form-label">事件時間 EVENT TIME (時:分)</label>
+        <input type="time" class="form-control" id="eventTime">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">事件詳細敘述 EVENT DESCRIPTION</label>
+        <textarea class="form-control" id="description" rows="5" placeholder="請詳細敘述發生經過..."></textarea>
+      </div>
+    </div>
+
+    <div class="text-end" id="actionBtnGroup">
+      <button class="btn btn-secondary btn-lg me-2" id="cancelEditBtn" style="display:none;" onclick="resetToCreateMode()">取消 CANCEL</button>
+      <button class="btn-tactical-gold btn-lg" id="submitBtn" onclick="prepareSubmit()">預覽並上傳 PREVIEW ✅</button>
+    </div>
+  </div> 
+
+  <div class="section-card tactical-silhouette-container">
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-2">
+        <h5 style="color: var(--color-gold); font-weight: bold; margin:0;">📋 當前任務與審查清單</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadCases()">🔄 刷新連線</button>
+    </div>
+    <div class="table-responsive">
+      <table class="table-tactical table table-striped table-hover table-sm">
+        <thead>
+          <tr>
+            <th>任務編號 ID</th>
+            <th>狀態 STATUS</th>
+            <th>類型 TYPE</th>
+            <th>帶隊官/案由 LEADER/REASON</th>
+            <th>出發 DEPART</th>
+            <th>操作選項 OPS</th>
+          </tr>
+        </thead>
+        <tbody id="caseListBody">
+          <tr><td colspan="6" class="text-center text-muted">連線資料庫中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div> 
+
+<div class="modal fade" id="confirmModal" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background-color: var(--color-card-background); border: 2px solid var(--color-gold);">
+      <div class="modal-header" style="border-bottom: 1px solid #444;">
+        <h5 class="modal-title fw-bold" style="color: var(--color-gold);">⚠️ 系統提示：LINE定型稿確認</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="finalDraftText" class="form-control" rows="15" style="background-color: #121212; color: #fff; border: 1px solid #444; font-family: 'Courier New';"></textarea>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid #444; display: flex; justify-content: space-between;" id="modalFooterBtns">
+        </div>
+    </div>
+  </div>
+</div>  
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ▼▼▼ 部署設定：將下方 URL 替換為你的 GAS Web App 網址 ▼▼▼
+  const GAS_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+  // ▲▲▲ 部署設定 ▲▲▲
+
+  async function gasCall(action, payload = null) {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action, payload }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    });
+    return res.json();
+  }
+
+  let globalVehicleOptions = [];
+  let currentMode = "create"; 
+  let activeRowId = null;
+  let activeCaseId = null;
+
+  document.addEventListener("DOMContentLoaded", function() {
+    gasCall('getVehicleOptions').then(opts => {
+      globalVehicleOptions = opts; updateAllVehicleSelects();
+    });
+    loadCases();
+  });
+
+  function updateAllVehicleSelects() {
+    const optionsHtml = '<option value="">-- 選擇車輛 --</option>' + globalVehicleOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+    document.querySelectorAll('.vehicle-select').forEach(sel => { const v = sel.value; sel.innerHTML = optionsHtml; if (v) sel.value = v; });
+  }
+
+  function addVehicleRow(vehicleVal = "", driverVal = "") {
+    const container = document.getElementById('vehicleContainer');
+    const row = document.createElement('div'); row.className = 'row mb-2 vehicle-row';
+    const optionsHtml = '<option value="">-- 選擇車輛 --</option>' + globalVehicleOptions.map(opt => `<option value="${opt}" ${opt===vehicleVal?'selected':''}>${opt}</option>`).join('');
+    row.innerHTML = `<div class="col-md-7 mb-2"><select class="form-select vehicle-select" style="background-color: #1a1a1a; color: white; border-color: #333;">${optionsHtml}</select></div>
+                     <div class="col-md-4 mb-2"><input type="text" class="form-control driver-input" value="${driverVal}"></div>
+                     <div class="col-md-1 mb-2 d-flex align-items-center"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.vehicle-row').remove()">X</button></div>`;
+    container.appendChild(row);
+  }
+
+  function addAmmoCarrierRow(val = "") {
+    const container = document.getElementById('ammoCarrierContainer');
+    const row = document.createElement('div'); row.className = 'row mb-2 ammo-carrier-row';
+    row.innerHTML = `<div class="col-md-10 mb-2"><input type="text" class="form-control carrier-input" value="${val}"></div>
+                     <div class="col-md-2 mb-2 d-flex align-items-center"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.ammo-carrier-row').remove()">X</button></div>`;
+    container.appendChild(row);
+  }
+
+  function toggleForm() {
+    const type = document.querySelector('input[name="reportType"]:checked').value;
+    document.getElementById('normalFields').style.display = (type === "事件通報") ? 'none' : 'block';
+    document.getElementById('eventFields').style.display = (type === "事件通報") ? 'block' : 'none';
+    document.getElementById('locationFieldGroup').style.display = (type === "勤務通報") ? 'block' : 'none';
+  }
+
+  function loadCases() {
+    document.getElementById('caseListBody').innerHTML = '<tr><td colspan="6" class="text-muted text-center">連線資料庫中...</td></tr>';
+    gasCall('getActiveCases').then(cases => {
+      let html = '';
+      if (cases.length === 0) html = '<tr><td colspan="6" class="text-muted text-center">目前無任務資料</td></tr>';
+      cases.forEach(c => {
+        let badge = '';
+        let btn = '';
+
+        if (c.status === "進行中") {
+          badge = `<span class="badge badge-tactical-green">進行中</span>`;
+          btn = `<button class="btn btn-sm btn-outline-secondary text-secondary me-1" onclick='viewActiveDraft(${JSON.stringify(c.rawData)})'>檢視</button>
+                 <button class="btn btn-sm btn-outline-warning me-1" onclick='modifyActiveCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>修改</button>
+                 <button class="btn btn-sm btn-outline-info" onclick='startCloseCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>撰寫結報</button>`;
+        } else if (c.status === "結案審查中") {
+          badge = `<span class="badge badge-warning">審查中</span>`;
+          btn = `<button class="btn btn-sm btn-danger" onclick='reviewCloseCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>結案審查</button>`;
+        } else if (c.status === "結案") {
+          badge = `<span class="badge bg-secondary text-dark">已結案</span>`;
+          btn = `<button class="btn btn-sm btn-outline-secondary text-muted" onclick='viewArchivedCase(${c.rowId}, ${JSON.stringify(c.rawData)}, "${c.caseId}")'>檢視文本</button>`;
+        }
+
+        html += `<tr><td style="color: #888;">${c.caseId}</td><td>${badge}</td><td>${c.type}</td><td>${c.commander}</td><td>${c.departureTime}</td><td>${btn}</td></tr>`;
+      });
+      document.getElementById('caseListBody').innerHTML = html;
+    });
+  }
+
+  // 修改進行中案件 (擦屁股模式)
+  function modifyActiveCase(rowId, rawDataJson, caseId) {
+    if(!rawDataJson) { alert("資料毀損"); return; }
+    currentMode = "modify"; activeRowId = rowId; activeCaseId = caseId;
+    
+    let banner = document.getElementById('modeBanner');
+    banner.style.display = "block";
+    banner.style.backgroundColor = "#ffaa00"; // 橘黃色警告
+    banner.innerText = "⚠️ 目前為【資料修改模式】，請修正您欲變更的欄位。";
+    
+    document.getElementById('formTitleText').innerText = "修改通報資料";
+    document.getElementById('typeRadioGroup').style.display = "none"; 
+    document.getElementById('cancelEditBtn').style.display = "inline-block";
+    
+    document.getElementById('departureTimeLabel').innerText = "出發時間 (時:分)";
+    document.getElementById('departureTime').readOnly = false; // 允許改出發時間
+    document.getElementById('returnTimeGroup').style.display = "none"; 
+    
+    let data = JSON.parse(rawDataJson);
+    document.querySelector(`input[name="reportType"][value="${data.reportType}"]`).checked = true;
+    toggleForm();
+    
+    document.getElementById('reason').value = data.reason || "";
+    document.getElementById('commander').value = data.commander || "";
+    document.getElementById('departureTime').value = data.departureTime || "";
+    document.getElementById('personnelCount').value = data.personnelCount || "1";
+    document.getElementById('reportingLocation').value = data.reportingLocation || "";
+    if(data.eventTime) document.getElementById('eventTime').value = data.eventTime;
+    if(data.description) document.getElementById('description').value = data.description;
+
+    document.getElementById('vehicleContainer').innerHTML = "";
+    if(data.vehicles && data.vehicles.length > 0) {
+      data.vehicles.forEach(v => addVehicleRow(v.vehicle, v.driver));
+    } else { addVehicleRow(); }
+
+    document.getElementById('ammoCarrierContainer').innerHTML = "";
+    if(data.carriers && data.carriers.length > 0) {
+      data.carriers.forEach(c => addAmmoCarrierRow(c));
+    } else { addAmmoCarrierRow(); }
+
+    document.querySelectorAll('.gear-input').forEach(el => el.value = "0");
+    if(data.gear) {
+      for(let key in data.gear) {
+        let el = document.querySelector(`.gear-input[data-name="${key}"]`);
+        if(el) el.value = data.gear[key];
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 結報模式
+  function startCloseCase(rowId, rawDataJson, caseId) {
+    if(!rawDataJson) { alert("資料毀損"); return; }
+    currentMode = "edit"; activeRowId = rowId; activeCaseId = caseId;
+    
+    let banner = document.getElementById('modeBanner');
+    banner.style.display = "block";
+    banner.style.backgroundColor = "#ff4c4c"; // 紅色警告
+    banner.innerText = "⚠️ 目前為【結案通報模式】，請確認返抵時間與裝備清點無誤。";
+    
+    document.getElementById('formTitleText').innerText = "結案通報作業";
+    document.getElementById('typeRadioGroup').style.display = "none"; 
+    document.getElementById('cancelEditBtn').style.display = "inline-block";
+    document.getElementById('departureTimeLabel').innerText = "出發時間 (唯讀)";
+    document.getElementById('departureTime').readOnly = true;
+    document.getElementById('returnTimeGroup').style.display = "block"; 
+    
+    let data = JSON.parse(rawDataJson);
+    document.querySelector(`input[name="reportType"][value="${data.reportType}"]`).checked = true;
+    toggleForm();
+    
+    document.getElementById('reason').value = data.reason || "";
+    document.getElementById('commander').value = data.commander || "";
+    document.getElementById('departureTime').value = data.departureTime || "";
+    document.getElementById('returnTime').value = ""; 
+    document.getElementById('personnelCount').value = data.personnelCount || "1";
+    document.getElementById('reportingLocation').value = data.reportingLocation || "";
+    if(data.eventTime) document.getElementById('eventTime').value = data.eventTime;
+    if(data.description) document.getElementById('description').value = data.description;
+
+    document.getElementById('vehicleContainer').innerHTML = "";
+    if(data.vehicles && data.vehicles.length > 0) {
+      data.vehicles.forEach(v => addVehicleRow(v.vehicle, v.driver));
+    } else { addVehicleRow(); }
+
+    document.getElementById('ammoCarrierContainer').innerHTML = "";
+    if(data.carriers && data.carriers.length > 0) {
+      data.carriers.forEach(c => addAmmoCarrierRow(c));
+    } else { addAmmoCarrierRow(); }
+
+    document.querySelectorAll('.gear-input').forEach(el => el.value = "0");
+    if(data.gear) {
+      for(let key in data.gear) {
+        let el = document.querySelector(`.gear-input[data-name="${key}"]`);
+        if(el) el.value = data.gear[key];
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetToCreateMode() {
+    currentMode = "create"; activeRowId = null; activeCaseId = null;
+    document.getElementById('modeBanner').style.display = "none";
+    document.getElementById('formTitleText').innerText = "新增通報";
+    document.getElementById('typeRadioGroup').style.display = "block";
+    document.getElementById('cancelEditBtn').style.display = "none";
+    document.getElementById('departureTimeLabel').innerText = "出發時間 (時:分)";
+    document.getElementById('departureTime').readOnly = false;
+    document.getElementById('returnTimeGroup').style.display = "none";
+    
+    document.querySelectorAll('input[type="text"], input[type="time"], textarea').forEach(el => el.value = '');
+    document.querySelectorAll('.gear-input').forEach(el => el.value = '0');
+    document.getElementById('personnelCount').value = '1';
+    document.getElementById('vehicleContainer').innerHTML = ""; addVehicleRow();
+    document.getElementById('ammoCarrierContainer').innerHTML = ""; addAmmoCarrierRow();
+  }
+
+  let pendingSubmitPayload = null;
+
+  function prepareSubmit() {
+    const type = document.querySelector('input[name="reportType"]:checked').value;
+    
+    let rawInputs = {
+      reportType: type, reason: document.getElementById('reason').value.trim(),
+      commander: document.getElementById('commander') ? document.getElementById('commander').value.trim() : "",
+      departureTime: document.getElementById('departureTime') ? document.getElementById('departureTime').value : "",
+      personnelCount: document.getElementById('personnelCount') ? document.getElementById('personnelCount').value : "1",
+      reportingLocation: document.getElementById('reportingLocation') ? document.getElementById('reportingLocation').value.trim() : "",
+      eventTime: document.getElementById('eventTime') ? document.getElementById('eventTime').value : "",
+      description: document.getElementById('description') ? document.getElementById('description').value.trim() : "",
+      vehicles: [], carriers: [], gear: {}, customGears: [] 
+    };
+
+    if (rawInputs.reason === "") { alert("⚠️ 請填寫案由！"); return; }
+    if ((type === "一般運行" || type === "勤務通報") && rawInputs.commander === "") { alert("⚠️ 請填寫帶隊官！"); return; }
+    
+    let returnTimeStr = document.getElementById('returnTime') ? document.getElementById('returnTime').value : "";
+    
+    // 🚨 防呆機制：結報時的嚴格時間審查
+    if (currentMode === "edit" && type !== "事件通報") {
+        if (returnTimeStr === "") {
+            alert("⚠️ 結報作業必須填寫「返抵時間」！"); return;
+        }
+        if (returnTimeStr === rawInputs.departureTime) {
+            alert("⚠️ 出發跟返抵時間一樣？你開的是時光機嗎？"); return;
+        }
+    }
+
+    document.querySelectorAll('.vehicle-row').forEach(row => {
+      const v = row.querySelector('.vehicle-select').value, d = row.querySelector('.driver-input').value.trim();
+      if (v || d) rawInputs.vehicles.push({ vehicle: v, driver: d });
+    });
+    document.querySelectorAll('.carrier-input').forEach(input => {
+      if (input.value.trim() !== "") rawInputs.carriers.push(input.value.trim());
+    });
+
+    let weapons = [], ammoMap = {}, totalGuns = 0, radioQty = 0;
+    const gunNames = ["手槍", "衝鋒槍", "步槍", "霰彈槍", "狙擊槍", "瓦斯槍"]; 
+    document.querySelectorAll('.gear-input').forEach(input => {
+      let qty = parseInt(input.value) || 0, name = input.getAttribute('data-name');
+      if (qty > 0) {
+        rawInputs.gear[name] = qty;
+        if (gunNames.includes(name)) { weapons.push({ name: name, qty: qty }); totalGuns += qty; }
+        else if (name === "無線電") radioQty = qty;
+        else ammoMap[name] = qty;
+      }
+    });
+
+    if ((type === "一般運行" || type === "勤務通報") && totalGuns > 0 && rawInputs.carriers.length === 0) {
+      alert("⚠️ 帶了槍卻沒填「押槍彈」？你帶的是水槍嗎？去填！"); return;
+    }
+
+    document.querySelectorAll('.custom-gear-row').forEach(row => {
+      const name = row.querySelector('.cg-name').value.trim();
+      const qty = parseInt(row.querySelector('.cg-qty').value) || 0;
+      let unit = row.querySelector('.cg-unit').value.trim() || "個";
+      if (name !== "" && qty > 0) rawInputs.customGears.push({ name: name, qty: qty, unit: unit });
+    });
+
+    let dataForDB = { ...rawInputs };
+    dataForDB.returnTime = returnTimeStr;
+    dataForDB.caseId = activeCaseId; 
+    dataForDB.vehicleInfo = rawInputs.vehicles.map(item => `${item.vehicle || "未選"} (駕駛${item.driver || "未填"})`).join('，');
+    
+    let dbWeaponsArray = weapons.map(w => `${w.name} x ${w.qty}`);
+    for (let key in ammoMap) { dbWeaponsArray.push(`${key} x ${ammoMap[key]}`); }
+    if (radioQty > 0) dbWeaponsArray.push(`無線電 x ${radioQty}`);
+    if (rawInputs.carriers.length > 0) dbWeaponsArray.push(`\n[押槍彈人員：${rawInputs.carriers.join('、')}]`);
+    dataForDB.weaponsText = dbWeaponsArray.join('，') || "無攜行裝備";
+
+    let draft = generateDraft(dataForDB, type, currentMode, rawInputs);
+    document.getElementById('finalDraftText').value = draft;
+    
+    pendingSubmitPayload = {
+      action: currentMode,
+      rowId: activeRowId,
+      data: dataForDB,
+      rawInputs: rawInputs
+    };
+
+    document.getElementById('modalFooterBtns').innerHTML = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">退回修改 BACK</button>
+      <div>
+        <button type="button" class="btn btn-outline-info me-2" onclick="copyDraft()">📄 一鍵複製 COPY</button>
+        <button type="button" class="btn-tactical-gold" id="finalSubmitBtn" onclick="executeSubmission()">確定上傳 UPLOAD 🚀</button>
+      </div>`;
+
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+  }
+
+  function generateDraft(data, type, mode, rawInputs) {
+    let today = new Date();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    
+    let reportStage = (mode === "edit" || mode === "review") ? "結報" : "初報";
+    let draft = `${mm}${dd}${data.reason}案（${reportStage}）\n`;
+    
+    if (type === "一般運行" || type === "勤務通報") {
+      draft += `一、人員：${data.commander}帶隊，人員共${data.personnelCount}名。\n`;
+      
+      let wSec = "三", vSec = "四", lSec = "五";
+      
+      if (mode === "edit" || mode === "review") {
+        draft += `二、返抵時間：${data.returnTime ? data.returnTime.replace(':', '') : "未填寫"}\n`;
+      } else {
+        draft += `二、出發時間：${data.departureTime ? data.departureTime.replace(':', '') : "未填寫"}\n`;
+      }
+      
+      draft += `${wSec}、攜帶武器裝備及彈藥：\n`;
+      
+      let weapons = [], ammoMap = {}, radioQty = 0;
+      const gunNames = ["手槍", "衝鋒槍", "步槍", "霰彈槍", "狙擊槍", "瓦斯槍"];
+      if (rawInputs.gear) {
+        for (let key in rawInputs.gear) {
+            let qty = rawInputs.gear[key];
+            if (gunNames.includes(key)) weapons.push({name: key, qty: qty});
+            else if (key === "無線電") radioQty = qty;
+            else ammoMap[key] = qty;
+        }
+      }
+      let customGears = rawInputs.customGears || [];
+      
+      let wIndex = 1;
+      const numMap = ["（一）", "（二）", "（三）", "（四）", "（五）", "（六）", "（七）", "（八）"];
+      
+      weapons.forEach(w => {
+        draft += `${numMap[wIndex-1]}${w.name}：${w.qty}枝\n`;
+        wIndex++;
+      });
+      
+      if (radioQty > 0) {
+        draft += `${numMap[wIndex-1]}無線電：${radioQty}部\n`;
+        wIndex++;
+      }
+      
+      let ammoKeys = Object.keys(ammoMap);
+      if (ammoKeys.length > 0 || customGears.length > 0) {
+        draft += `${numMap[wIndex-1]}彈藥：\n`;
+        let aIndex = 1;
+        
+        const processAmmo = (equipName, trainPrefix) => {
+          if (ammoMap[equipName]) {
+            let carrierText = (aIndex === 1 && rawInputs.carriers && rawInputs.carriers.length > 0) ? `（含押槍彈，由${rawInputs.carriers.join('、')}配賦）` : "";
+            draft += `${aIndex}.${equipName}：${ammoMap[equipName]}顆${carrierText}\n`;
+            aIndex++;
+          }
+          let live = ammoMap[`${trainPrefix}(實彈)`] || 0;
+          let shell = ammoMap[`${trainPrefix}(彈殼)`] || 0;
+          if (live > 0 || shell > 0) {
+            draft += `${aIndex}.${trainPrefix}\n`;
+            if(live > 0) draft += `實彈：${live}顆\n`;
+            if(shell > 0) draft += `彈殼：${shell}顆\n`;
+            aIndex++;
+          }
+        };
+
+        processAmmo("9mm裝備彈", "9mm訓練彈");
+        processAmmo("5.56mm裝備彈", "5.56mm訓練彈");
+        processAmmo("7.62mm裝備彈", "7.62mm訓練彈");
+        
+        ["5.56mm空包彈", "霰彈", "震撼彈", "瓦斯彈", "色彈"].forEach(name => {
+          if (ammoMap[name]) {
+            let carrierText = (aIndex === 1 && rawInputs.carriers && rawInputs.carriers.length > 0 && !draft.includes("含押槍彈")) ? `（含押槍彈，由${rawInputs.carriers.join('、')}配賦）` : "";
+            draft += `${aIndex}.${name}：${ammoMap[name]}顆${carrierText}\n`;
+            aIndex++;
+          }
+        });
+        
+        customGears.forEach(cg => {
+          draft += `${aIndex}.${cg.name}：${cg.qty}${cg.unit}\n`;
+          aIndex++;
+        });
+      }
+      
+      if (weapons.length === 0 && radioQty === 0 && ammoKeys.length === 0 && customGears.length === 0) {
+        draft += "無\n";
+      }
+
+      draft += `${vSec}、運行車輛：\n`;
+      if (rawInputs.vehicles && rawInputs.vehicles.length > 0) {
+        rawInputs.vehicles.forEach(v => {
+           draft += `${v.vehicle}（駕駛${v.driver}）\n`;
+        });
+      } else {
+        draft += "無\n";
+      }
+      
+      if (type === "勤務通報") {
+        draft += `${lSec}、報到地點：${data.reportingLocation}\n`;
+      }
+    } else {
+      let eTime = data.eventTime ? data.eventTime.replace(':', '') : `${today.getHours()}${String(today.getMinutes()).padStart(2, '0')}`;
+      draft += `一、事件時間：${eTime}\n二、事件敘述：\n${data.description}\n`;
+    }
+    return draft;
+  }
+
+  function copyDraft() {
+    let copyText = document.getElementById("finalDraftText");
+    copyText.select(); navigator.clipboard.writeText(copyText.value);
+    alert("✅ 複製成功！");
+  }
+
+  function executeSubmission() {
+    const btn = document.getElementById('finalSubmitBtn');
+    btn.disabled = true; btn.innerHTML = "上傳中... ⏳";
+
+    gasCall('submitReport', pendingSubmitPayload).then(res => {
+      if (res.success) {
+        alert("✅ " + res.message);
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        resetToCreateMode();
+        loadCases();
+      } else {
+        alert("❌ 錯誤：" + res.message); btn.disabled = false; btn.innerHTML = "上傳失敗";
+      }
+    });
+  }
+
+  function reviewCloseCase(rowId, rawDataJson, caseId) {
+    if(!rawDataJson) return;
+    let data = JSON.parse(rawDataJson);
+    let draft = generateDraft(data, data.reportType, "review", data);
+    document.getElementById('finalDraftText').value = draft;
+    
+    document.getElementById('modalFooterBtns').innerHTML = `
+      <button type="button" class="btn btn-danger" onclick="executeStatusChange(${rowId}, '進行中')">退回重填 RETURN</button>
+      <div>
+        <button type="button" class="btn btn-outline-info me-2" onclick="copyDraft()">📄 複製內容 COPY</button>
+        <button type="button" class="btn-tactical-green" onclick="executeStatusChange(${rowId}, '結案')">確認結案 CLOSE 🔒</button>
+      </div>`;
+      
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+  }
+
+  function viewArchivedCase(rowId, rawDataJson, caseId) {
+    if(!rawDataJson) return;
+    let data = JSON.parse(rawDataJson);
+    let draft = generateDraft(data, data.reportType, "review", data);
+    document.getElementById('finalDraftText').value = draft;
+    
+    document.getElementById('modalFooterBtns').innerHTML = `
+      <span class="text-muted" style="font-size:0.85rem;">🔒 此任務已結案封存</span>
+      <button type="button" class="btn btn-outline-info" onclick="copyDraft()">📄 複製內容 COPY</button>`;
+      
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+  }
+
+  function executeStatusChange(rowId, status) {
+    gasCall('changeCaseStatus', { rowId, status }).then(res => {
+      if (res.success) {
+        alert(`✅ 已將案件狀態變更為【${status}】`);
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        loadCases();
+      }
+    });
+  }
+
+  // 專門拯救金魚腦隊員的「初報」文本檢視器
+  function viewActiveDraft(rawDataJson) {
+    if(!rawDataJson) { alert("資料毀損"); return; }
+    let data = JSON.parse(rawDataJson);
+    
+    // 強制用 "create" 模式產出初報文本
+    let draft = generateDraft(data, data.reportType, "create", data);
+    document.getElementById('finalDraftText').value = draft;
+    
+    document.getElementById('modalFooterBtns').innerHTML = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉 CLOSE</button>
+      <button type="button" class="btn btn-outline-info" onclick="copyDraft()">📄 複製定型稿 COPY</button>`;
+      
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+  }
+</script>
+</body>
+</html>
