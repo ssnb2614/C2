@@ -264,11 +264,11 @@
   const CACHE_KEY = 'npasog_cache';
 
   async function gasCall(action, payload = null) {
-    const res = await fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action, payload }),
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-    });
+    const url = new URL(GAS_URL);
+    url.searchParams.set('action', action);
+    if (payload !== null) url.searchParams.set('payload', JSON.stringify(payload));
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   }
 
@@ -291,7 +291,7 @@
           updateAllVehicleSelects();
           renderCases(data.cases || []);
           localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        });
+        }).catch(() => {});
       } catch (e) {
         loadCases();
       }
@@ -372,12 +372,20 @@
 
   function loadCases() {
     document.getElementById('caseListBody').innerHTML = '<tr><td colspan="6" class="text-muted text-center">連線資料庫中...</td></tr>';
-    gasCall('initData').then(data => {
-      globalVehicleOptions = data.vehicleOptions || [];
-      updateAllVehicleSelects();
-      renderCases(data.cases || []);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-    });
+    gasCall('initData')
+      .then(data => {
+        globalVehicleOptions = data.vehicleOptions || [];
+        updateAllVehicleSelects();
+        renderCases(data.cases || []);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      })
+      .catch(() => {
+        document.getElementById('caseListBody').innerHTML =
+          '<tr><td colspan="6" class="text-danger text-center">⚠️ 連線失敗，請確認 GAS 網址設定，或按【刷新連線】重試。</td></tr>';
+        document.querySelectorAll('.vehicle-select').forEach(sel => {
+          sel.innerHTML = '<option value="">⚠️ 車輛清單載入失敗</option>';
+        });
+      });
   }
 
   // 修改進行中案件 (擦屁股模式)
