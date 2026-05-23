@@ -97,7 +97,10 @@
       <div class="mb-4 mt-3" style="border: 1px dashed #444; padding: 15px; border-radius: 4px;">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <label class="form-label fw-bold mb-0" style="color: var(--color-tactical-green);">車輛與駕駛 VEHICLE & DRIVER</label>
-          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addVehicleRow()" style="color: var(--color-gold); border-color: var(--color-gold);">+ 新增車輛 ADD</button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addVehicleRow()" style="color: var(--color-gold); border-color: var(--color-gold);">+ 新增車輛 ADD</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addManualVehicleRow()" style="color: #88ccff; border-color: #88ccff;">+ 新增總隊車輛 ADD</button>
+          </div>
         </div>
         <div id="vehicleContainer">
           <div class="row mb-2 vehicle-row">
@@ -150,18 +153,21 @@
             <div id="collapseAmmo" class="accordion-collapse collapse" data-bs-parent="#gearAccordion">
               <div class="accordion-body" style="background-color: #1a1a1a;">
                 <div class="row g-2">
-                  <div class="col-12 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">9mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm裝備彈" min="0" value="0"></div>
-                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem;">9mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(實彈)" min="0" value="0"></div>
-                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">9mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-12 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">9mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm裝備彈" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem;">9mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(實彈)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">9mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ff6b6b;">9mm訓練彈(跳失)</label><input type="number" class="form-control form-control-sm gear-input" data-name="9mm訓練彈(跳失)" min="0" value="0"></div>
                   
                   <div class="col-12 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">5.56mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm裝備彈" min="0" value="0"></div>
-                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">5.56mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(實彈)" min="0" value="0"></div>
-                  <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">5.56mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem;">5.56mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(實彈)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">5.56mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ff6b6b;">5.56mm訓練彈(跳失)</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm訓練彈(跳失)" min="0" value="0"></div>
                   <div class="col-12 col-md-3"><label class="form-label" style="font-size: 0.85rem;">5.56mm空包彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="5.56mm空包彈" min="0" value="0"></div>
                   
-                  <div class="col-12 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">7.62mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm裝備彈" min="0" value="0"></div>
-                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem;">7.62mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(實彈)" min="0" value="0"></div>
-                  <div class="col-6 col-md-4"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">7.62mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-12 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: var(--color-gold);">7.62mm裝備彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm裝備彈" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem;">7.62mm訓練彈(實彈)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(實彈)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ffaa00;">7.62mm訓練彈(彈殼)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(彈殼)" min="0" value="0"></div>
+                  <div class="col-4 col-md-3"><label class="form-label" style="font-size: 0.85rem; color: #ff6b6b;">7.62mm訓練彈(跳失)</label><input type="number" class="form-control form-control-sm gear-input" data-name="7.62mm訓練彈(跳失)" min="0" value="0"></div>
                   
                   <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">霰彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="霰彈" min="0" value="0"></div>
                   <div class="col-6 col-md-3"><label class="form-label" style="font-size: 0.85rem;">震撼彈</label><input type="number" class="form-control form-control-sm gear-input" data-name="震撼彈" min="0" value="0"></div>
@@ -196,6 +202,11 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="mb-3 mt-3">
+        <label class="form-label fw-bold" style="color: var(--color-text-secondary);">備註 REMARKS</label>
+        <textarea class="form-control" id="remark" rows="2" placeholder="如有補充說明請填寫於此（選填）"></textarea>
       </div>
     </div> <div id="eventFields" style="display: none;">
       <div class="mb-3">
@@ -315,6 +326,16 @@
     container.appendChild(row);
   }
 
+  function addManualVehicleRow(typeVal = "", plateVal = "", driverVal = "") {
+    const container = document.getElementById('vehicleContainer');
+    const row = document.createElement('div'); row.className = 'row mb-2 vehicle-row manual-vehicle-row';
+    row.innerHTML = `<div class="col-md-4 mb-2"><input type="text" class="form-control manual-type-input" placeholder="車種（例：小型警備車）" value="${typeVal}"></div>
+                     <div class="col-md-3 mb-2"><input type="text" class="form-control manual-plate-input" placeholder="車號（例：ABC-1234）" value="${plateVal}"></div>
+                     <div class="col-md-4 mb-2"><input type="text" class="form-control driver-input" placeholder="駕駛（例：警員李阿仁）" value="${driverVal}"></div>
+                     <div class="col-md-1 mb-2 d-flex align-items-center"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.vehicle-row').remove()">X</button></div>`;
+    container.appendChild(row);
+  }
+
   function addAmmoCarrierRow(val = "") {
     const container = document.getElementById('ammoCarrierContainer');
     const row = document.createElement('div'); row.className = 'row mb-2 ammo-carrier-row';
@@ -417,10 +438,14 @@
     document.getElementById('reportingLocation').value = data.reportingLocation || "";
     if(data.eventTime) document.getElementById('eventTime').value = data.eventTime;
     if(data.description) document.getElementById('description').value = data.description;
+    document.getElementById('remark').value = data.remark || "";
 
     document.getElementById('vehicleContainer').innerHTML = "";
     if(data.vehicles && data.vehicles.length > 0) {
-      data.vehicles.forEach(v => addVehicleRow(v.vehicle, v.driver));
+      data.vehicles.forEach(v => {
+        if (v.isManual) addManualVehicleRow(v.vehicleType || '', v.vehiclePlate || '', v.driver);
+        else addVehicleRow(v.vehicle, v.driver);
+      });
     } else { addVehicleRow(); }
 
     document.getElementById('ammoCarrierContainer').innerHTML = "";
@@ -462,15 +487,19 @@
     document.getElementById('reason').value = data.reason || "";
     document.getElementById('commander').value = data.commander || "";
     document.getElementById('departureTime').value = data.departureTime || "";
-    document.getElementById('returnTime').value = ""; 
+    document.getElementById('returnTime').value = "";
     document.getElementById('personnelCount').value = data.personnelCount || "1";
     document.getElementById('reportingLocation').value = data.reportingLocation || "";
     if(data.eventTime) document.getElementById('eventTime').value = data.eventTime;
     if(data.description) document.getElementById('description').value = data.description;
+    document.getElementById('remark').value = data.remark || "";
 
     document.getElementById('vehicleContainer').innerHTML = "";
     if(data.vehicles && data.vehicles.length > 0) {
-      data.vehicles.forEach(v => addVehicleRow(v.vehicle, v.driver));
+      data.vehicles.forEach(v => {
+        if (v.isManual) addManualVehicleRow(v.vehicleType || '', v.vehiclePlate || '', v.driver);
+        else addVehicleRow(v.vehicle, v.driver);
+      });
     } else { addVehicleRow(); }
 
     document.getElementById('ammoCarrierContainer').innerHTML = "";
@@ -518,7 +547,8 @@
       reportingLocation: document.getElementById('reportingLocation') ? document.getElementById('reportingLocation').value.trim() : "",
       eventTime: document.getElementById('eventTime') ? document.getElementById('eventTime').value : "",
       description: document.getElementById('description') ? document.getElementById('description').value.trim() : "",
-      vehicles: [], carriers: [], gear: {}, customGears: [] 
+      remark: document.getElementById('remark') ? document.getElementById('remark').value.trim() : "",
+      vehicles: [], carriers: [], gear: {}, customGears: []
     };
 
     if (rawInputs.reason === "") { alert("⚠️ 請填寫案由！"); return; }
@@ -537,8 +567,16 @@
     }
 
     document.querySelectorAll('.vehicle-row').forEach(row => {
-      const v = row.querySelector('.vehicle-select').value, d = row.querySelector('.driver-input').value.trim();
-      if (v || d) rawInputs.vehicles.push({ vehicle: v, driver: d });
+      const d = row.querySelector('.driver-input').value.trim();
+      if (row.classList.contains('manual-vehicle-row')) {
+        const vType = row.querySelector('.manual-type-input').value.trim();
+        const vPlate = row.querySelector('.manual-plate-input').value.trim();
+        const v = [vType, vPlate].filter(s => s).join(' ');
+        if (v || d) rawInputs.vehicles.push({ vehicle: v, driver: d, isManual: true, vehicleType: vType, vehiclePlate: vPlate });
+      } else {
+        const v = row.querySelector('.vehicle-select').value;
+        if (v || d) rawInputs.vehicles.push({ vehicle: v, driver: d });
+      }
     });
     document.querySelectorAll('.carrier-input').forEach(input => {
       if (input.value.trim() !== "") rawInputs.carriers.push(input.value.trim());
@@ -657,10 +695,18 @@
           }
           let live = ammoMap[`${trainPrefix}(實彈)`] || 0;
           let shell = ammoMap[`${trainPrefix}(彈殼)`] || 0;
-          if (live > 0 || shell > 0) {
-            draft += `${aIndex}.${trainPrefix}\n`;
-            if(live > 0) draft += `實彈：${live}顆\n`;
-            if(shell > 0) draft += `彈殼：${shell}顆\n`;
+          let lost = ammoMap[`${trainPrefix}(跳失)`] || 0;
+          if (live > 0 || shell > 0 || lost > 0) {
+            let total = live + shell + lost;
+            if (shell > 0 || lost > 0) {
+              let parts = [];
+              if (live > 0) parts.push(`實彈${live}顆`);
+              if (shell > 0) parts.push(`彈殼${shell}顆`);
+              if (lost > 0) parts.push(`跳失${lost}顆`);
+              draft += `${aIndex}.${trainPrefix}：${total}顆（${parts.join('、')}）\n`;
+            } else {
+              draft += `${aIndex}.${trainPrefix}：${live}顆\n`;
+            }
             aIndex++;
           }
         };
@@ -698,6 +744,10 @@
       
       if (type === "勤務通報") {
         draft += `${lSec}、報到地點：${data.reportingLocation}\n`;
+      }
+
+      if (data.remark && data.remark.trim()) {
+        draft += `備註：${data.remark.trim()}\n`;
       }
     } else {
       let eTime = data.eventTime ? data.eventTime.replace(':', '') : `${today.getHours()}${String(today.getMinutes()).padStart(2, '0')}`;
