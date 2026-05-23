@@ -43,7 +43,7 @@
 <div class="header-title-container">
   <div class="container text-center">
     <div class="header-title">NPASOG勤指傳真通報系統</div>
-    <div class="header-subtitle">v2.1(Beta)</div>
+    <div class="header-subtitle">v2.1.1(b)</div>
   </div>
 </div>
 
@@ -329,7 +329,7 @@
   function addManualVehicleRow(typeVal = "", plateVal = "", driverVal = "") {
     const container = document.getElementById('vehicleContainer');
     const row = document.createElement('div'); row.className = 'row mb-2 vehicle-row manual-vehicle-row';
-    row.innerHTML = `<div class="col-md-4 mb-2"><input type="text" class="form-control manual-type-input" placeholder="車種（例：小型警備車）" value="${typeVal}"></div>
+    row.innerHTML = `<div class="col-md-4 mb-2"><input type="text" class="form-control manual-type-input" placeholder="車種（例：警用巡邏車）" value="${typeVal}"></div>
                      <div class="col-md-3 mb-2"><input type="text" class="form-control manual-plate-input" placeholder="車號（例：ABC-1234）" value="${plateVal}"></div>
                      <div class="col-md-4 mb-2"><input type="text" class="form-control driver-input" placeholder="駕駛（例：警員李阿仁）" value="${driverVal}"></div>
                      <div class="col-md-1 mb-2 d-flex align-items-center"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.vehicle-row').remove()">X</button></div>`;
@@ -673,12 +673,12 @@
       const numMap = ["（一）", "（二）", "（三）", "（四）", "（五）", "（六）", "（七）", "（八）"];
       
       weapons.forEach(w => {
-        draft += `${numMap[wIndex-1]}${w.name}：${w.qty}枝\n`;
+        draft += `${numMap[wIndex-1]}${w.name}${w.qty}枝\n`;
         wIndex++;
       });
       
       if (radioQty > 0) {
-        draft += `${numMap[wIndex-1]}無線電：${radioQty}部\n`;
+        draft += `${numMap[wIndex-1]}無線電${radioQty}部\n`;
         wIndex++;
       }
       
@@ -690,7 +690,7 @@
         const processAmmo = (equipName, trainPrefix) => {
           if (ammoMap[equipName]) {
             let carrierText = (aIndex === 1 && rawInputs.carriers && rawInputs.carriers.length > 0) ? `（含押槍彈，由${rawInputs.carriers.join('、')}配賦）` : "";
-            draft += `${aIndex}.${equipName}：${ammoMap[equipName]}顆${carrierText}\n`;
+            draft += `${aIndex}.${equipName}${ammoMap[equipName]}顆${carrierText}\n`;
             aIndex++;
           }
           let live = ammoMap[`${trainPrefix}(實彈)`] || 0;
@@ -703,9 +703,9 @@
               if (live > 0) parts.push(`實彈${live}顆`);
               if (shell > 0) parts.push(`彈殼${shell}顆`);
               if (lost > 0) parts.push(`跳失${lost}顆`);
-              draft += `${aIndex}.${trainPrefix}：${total}顆（${parts.join('、')}）\n`;
+              draft += `${aIndex}.${trainPrefix}${total}顆（${parts.join('、')}）\n`;
             } else {
-              draft += `${aIndex}.${trainPrefix}：${live}顆\n`;
+              draft += `${aIndex}.${trainPrefix}${live}顆\n`;
             }
             aIndex++;
           }
@@ -718,13 +718,13 @@
         ["5.56mm空包彈", "霰彈", "震撼彈", "瓦斯彈", "色彈"].forEach(name => {
           if (ammoMap[name]) {
             let carrierText = (aIndex === 1 && rawInputs.carriers && rawInputs.carriers.length > 0 && !draft.includes("含押槍彈")) ? `（含押槍彈，由${rawInputs.carriers.join('、')}配賦）` : "";
-            draft += `${aIndex}.${name}：${ammoMap[name]}顆${carrierText}\n`;
+            draft += `${aIndex}.${name}${ammoMap[name]}顆${carrierText}\n`;
             aIndex++;
           }
         });
         
         customGears.forEach(cg => {
-          draft += `${aIndex}.${cg.name}：${cg.qty}${cg.unit}\n`;
+          draft += `${aIndex}.${cg.name}${cg.qty}${cg.unit}\n`;
           aIndex++;
         });
       }
